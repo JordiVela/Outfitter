@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Meine Garderobe</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F5F5F7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Garderobe">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+:root{
+  --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --ink2:#86868B;
+  --akzent:#1D1D1F; --akzent-dunkel:#000000; --akzent-hell:#F5F5F7;
+  --blau:#0071E3; --blau-aktiv:#0077ED;
+  --gruen:#34C759; --rot:#FF3B30; --rand:rgba(0,0,0,.08);
+  --schatten:0 4px 24px rgba(0,0,0,.06);
+  --radius:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-weight:700;letter-spacing:-.022em}
+.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(251,251,253,.8);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--rand);
+  text-align:center;font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+  padding:calc(13px + env(safe-area-inset-top)) 0 13px;
+}
+.hero{padding:38px 6px 26px}
+.hero h1{font-size:44px;line-height:1.05;letter-spacing:-.033em}
+.hero .sub{font-size:17px;color:var(--ink2);font-weight:500;margin-top:9px;letter-spacing:-.01em}
+.hero.klein{padding:30px 6px 18px}
+.hero.klein h1{font-size:36px}
+.gradient{
+  background:linear-gradient(88deg,#0090F7 0%,#8A2BE2 55%,#FF375F 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+main{padding:0 16px 20px;max-width:640px;margin:0 auto}
+.view{display:none}
+.view.aktiv{display:block;animation:fadein .25s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- Karten & Grundelemente ---------- */
+.karte{background:var(--card);border-radius:var(--radius);box-shadow:var(--schatten);padding:24px;margin-bottom:16px}
+.karte h3{font-size:21px;margin-bottom:10px}
+.hinweis{color:var(--ink2);font-size:14px;line-height:1.5}
+button{font:inherit;border:none;cursor:pointer;border-radius:980px}
+.btn{
+  display:block;width:100%;padding:14px;background:var(--blau);color:#fff;
+  font-size:15px;font-weight:600;letter-spacing:-.01em;
+  transition:transform .12s ease,opacity .12s ease,background .12s ease;
+}
+.btn:active{transform:scale(.98);background:var(--blau-aktiv)}
+.btn.sekundaer{background:var(--akzent-hell);color:var(--blau)}
+.btn.leise{background:transparent;color:var(--ink2);font-weight:500}
+.btn:disabled{opacity:.4}
+.zeile{display:flex;gap:10px}.zeile>*{flex:1}
+input,select,textarea{
+  font:inherit;width:100%;padding:12px 14px;border:1px solid transparent;
+  border-radius:12px;background:var(--akzent-hell);color:var(--ink);
+  transition:background .15s,border-color .15s;appearance:none;-webkit-appearance:none;
+}
+input:focus,select:focus,textarea:focus{outline:none;background:#fff;border-color:var(--blau);box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+label{display:block;font-size:12px;color:var(--ink2);margin:14px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* ---------- Chips ---------- */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  padding:9px 15px;border-radius:980px;background:#fff;border:1px solid transparent;
+  font-size:14px;color:var(--ink);white-space:nowrap;font-weight:500;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);transition:transform .12s ease;
+}
+.chip:active{transform:scale(.96)}
+.chip.aktiv{background:var(--ink);color:#fff;font-weight:600;box-shadow:none}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;padding:2px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.chips.scroll::-webkit-scrollbar{display:none}
+
+/* ---------- Schrank-Grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;margin-top:14px}
+.teil{
+  position:relative;border-radius:16px;overflow:hidden;background:#fff;
+  box-shadow:var(--schatten);aspect-ratio:3/4;cursor:pointer;
+  transition:transform .15s ease;
+}
+.teil:active{transform:scale(.97)}
+.teil img{width:100%;height:100%;object-fit:cover;display:block}
+.teil .kein-foto{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;background:var(--akzent-hell)}
+.teil .fav{position:absolute;top:6px;right:6px;font-size:15px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.teil .name{
+  position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;font-size:11px;color:#fff;font-weight:500;
+  background:linear-gradient(transparent,rgba(0,0,0,.55));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.teil.archiviert{opacity:.45}
+
+/* ---------- Outfits ---------- */
+.outfit-fotos{display:flex;gap:8px;margin:12px 0}
+.outfit-fotos .of{
+  flex:1;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--akzent-hell);
+  display:flex;align-items:center;justify-content:center;font-size:26px;max-width:110px;
+}
+.outfit-fotos img{width:100%;height:100%;object-fit:cover}
+.outfit-titel{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tag{font-size:11px;padding:4px 10px;border-radius:980px;background:var(--akzent-hell);color:var(--ink);font-weight:600;white-space:nowrap}
+.begruendung{font-size:14px;color:var(--ink2);line-height:1.5;margin:6px 0 14px}
+
+/* ---------- Wetter ---------- */
+.wetter{display:flex;align-items:center;gap:16px}
+.wetter .icon{font-size:40px}
+.wetter .temp{font-size:24px;font-weight:700;letter-spacing:-.02em}
+.wetter .beschr{font-size:13px;color:var(--ink2);font-weight:500}
+
+/* ---------- Foto-Aufnahme ---------- */
+.foto-box{
+  aspect-ratio:3/4;max-width:230px;margin:0 auto;border-radius:var(--radius);
+  border:1.5px dashed #C7C7CC;background:var(--akzent-hell);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  color:var(--ink2);font-weight:600;cursor:pointer;overflow:hidden;position:relative;
+  transition:transform .12s ease;
+}
+.foto-box:active{transform:scale(.98)}
+.foto-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.foto-box .plus{font-size:42px;line-height:1}
+
+/* ---------- Navigation ---------- */
+nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(251,251,253,.82);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:1px solid var(--rand);
+  display:flex;justify-content:space-around;
+  padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:50;
+}
+nav button{
+  background:none;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:10.5px;color:var(--ink2);padding:5px 0;font-weight:600;border-radius:0;
+}
+nav button .ic{font-size:22px;transition:transform .15s ease}
+nav button.aktiv{color:var(--ink)}
+nav button.aktiv .ic{transform:scale(1.08)}
+
+/* ---------- Modal ---------- */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;
+  display:none;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+}
+.modal-bg.offen{display:flex}
+.modal{
+  background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow-y:auto;
+  border-radius:28px 28px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+  animation:hoch .25s cubic-bezier(.32,.72,.35,1);
+}
+@keyframes hoch{from{transform:translateY(60px);opacity:.4}to{transform:none;opacity:1}}
+.modal-kopf{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-kopf h2{font-size:22px}
+.schliessen{
+  background:var(--akzent-hell);font-size:17px;color:var(--ink2);
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+}
+
+/* ---------- Toast & Spinner ---------- */
+#toast{
+  position:fixed;left:50%;bottom:calc(94px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+  background:rgba(29,29,31,.92);backdrop-filter:blur(10px);color:#fff;
+  padding:12px 22px;border-radius:980px;font-size:14px;font-weight:500;
+  opacity:0;pointer-events:none;transition:.25s;z-index:200;max-width:88vw;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.2);
+}
+#toast.zeig{opacity:1;transform:translateX(-50%)}
+.spinner{
+  width:22px;height:22px;border:3px solid #E5E5EA;border-top-color:var(--ink);
+  border-radius:50%;animation:dreh .8s linear infinite;margin:0 auto;
+}
+@keyframes dreh{to{transform:rotate(360deg)}}
+.laden-text{text-align:center;color:var(--ink2);font-size:14px;margin-top:8px}
+.leer{text-align:center;padding:48px 20px;color:var(--ink2)}
+.leer .gross{font-size:48px;margin-bottom:12px}
+.abschnitt-titel{font-size:12px;color:var(--ink2);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin:22px 4px 8px}
+.fusszeile{text-align:center;font-size:12px;color:var(--ink2);margin-top:28px}
+
+/* ---------- Scroll-Reveal (Apple-Style) ---------- */
+html{scroll-behavior:smooth}
+.rv{
+  opacity:0;transform:translateY(32px) scale(.98);
+  transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);
+  will-change:opacity,transform;
+}
+.rv.sichtbar{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+.zentriert{text-align:center}
+.zentriert .chips{justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">Garderobe</div>
+
+<main>
+  <!-- ============ HEUTE ============ -->
+  <section class="view aktiv" id="view-heute">
+    <div class="hero">
+      <h1><span class="gradient" id="gruss">Hallo.</span></h1>
+      <p class="sub" id="hero-datum"></p>
+    </div>
+    <div class="karte rv" id="wetter-karte">
+      <div class="wetter" id="wetter-inhalt">
+        <div class="hinweis">📍 Lege in „Mehr“ deinen Ort fest, um Wetter-Vorschläge zu bekommen.</div>
+      </div>
+    </div>
+
+    <div class="karte rv zentriert">
+      <h3>Wofür brauchst du ein Outfit?</h3>
+      <div class="chips" id="anlass-chips" style="margin-top:12px"></div>
+      <div style="margin-top:14px">
+        <button class="btn" id="btn-outfits">✨ Outfits vorschlagen</button>
+      </div>
+    </div>
+
+    <div id="heute-gewaehlt"></div>
+    <div id="outfit-ergebnisse"></div>
+  </section>
+
+  <!-- ============ SCHRANK ============ -->
+  <section class="view" id="view-schrank">
+    <div class="hero klein">
+      <h1>Schrank.</h1>
+      <p class="sub" id="schrank-sub">Alles an einem Ort.</p>
+    </div>
+    <div class="chips scroll" id="filter-chips"></div>
+    <div class="grid" id="schrank-grid"></div>
+    <div class="leer" id="schrank-leer" style="display:none">
+      <div class="gross">👗</div>
+      <p>Noch keine Kleidungsstücke.<br>Tippe unten auf <b>+</b>, um zu starten.</p>
+    </div>
+  </section>
+
+  <!-- ============ HINZUFÜGEN ============ -->
+  <section class="view" id="view-add">
+    <div class="hero klein">
+      <h1>Neues Teil.</h1>
+      <p class="sub">Foto machen. Den Rest erledigt die App.</p>
+    </div>
+    <div class="karte rv">
+      <div class="foto-box" id="foto-box">
+        <span class="plus">📷</span>
+        <span>Foto aufnehmen</span>
+      </div>
+      <input type="file" id="foto-input" accept="image/*" capture="environment" hidden>
+      <div id="ki-status"></div>
+    </div>
+    <div class="karte rv" id="add-form"></div>
+    <button class="btn" id="btn-speichern">Speichern</button>
+    <div style="height:10px"></div>
+    <button class="btn leise" id="btn-add-reset">Formular leeren</button>
+  </section>
+
+  <!-- ============ MEHR ============ -->
+  <section class="view" id="view-mehr">
+    <div class="hero klein">
+      <h1>Mehr.</h1>
+      <p class="sub">Einstellungen, Profil & Sicherung.</p>
+    </div>
+    <div class="karte rv">
+      <h3>📍 Ort für Wetter</h3>
+      <div class="zeile" style="margin-top:8px">
+        <input type="text" id="ort-input" placeholder="z. B. Erfurt">
+        <button class="btn sekundaer" style="flex:0 0 auto;width:auto;padding:0 18px" id="btn-ort">Suchen</button>
+      </div>
+      <p class="hinweis" id="ort-status" style="margin-top:8px"></p>
+    </div>
+
+    <div class="karte rv">
+      <h3>🤖 KI-Funktionen (optional)</h3>
+      <p class="hinweis" style="margin-top:6px">Mit einem Claude API-Key werden Fotos automatisch erkannt und Outfits von einer KI-Stylistin kuratiert, die deinen Stil lernt. Ohne Key funktioniert alles manuell + mit Regel-Vorschlägen.</p>
+      <label>Claude API-Key</label>
+      <input type="password" id="key-input" placeholder="sk-ant-…" autocomplete="off">
+      <div class="zeile" style="margin-top:10px">
+        <button class="btn sekundaer" id="btn-key-speichern">Speichern</button>
+        <button class="btn sekundaer" id="btn-key-test">Testen</button>
+      </div>
+      <p class="hinweis" id="key-status" style="margin-top:8px"></p>
+    </div>
+
+    <div class="karte rv">
+      <h3>💃 Stilprofil</h3>
+      <p class="hinweis" id="stilprofil-text" style="margin-top:6px">Noch kein Stilprofil. Es entsteht automatisch aus deinem Feedback (👍/👎) zu getragenen Outfits, sobald ein API-Key hinterlegt ist.</p>
+      <div style="margin-top:10px">
+        <button class="btn sekundaer" id="btn-profil-neu">Jetzt aus Feedback erstellen</button>
+      </div>
+    </div>
+
+    <div class="karte rv">
+      <h3>💾 Sicherung</h3>
+      <p class="hinweis" style="margin-top:6px">Alle Daten liegen nur auf diesem Gerät. Sichere sie regelmäßig als Datei (z. B. in deine Cloud).</p>
+      <div class="zeile" style="margin-top:10px">
+        <button class="btn sekundaer" id="btn-export">Exportieren</button>
+        <button class="btn sekundaer" id="btn-import">Importieren</button>
+      </div>
+      <input type="file" id="import-input" accept=".json,application/json" hidden>
+      <p class="hinweis" id="statistik" style="margin-top:10px"></p>
+    </div>
+
+    <p class="fusszeile">Meine Garderobe · v1.0</p>
+  </section>
+</main>
+
+<nav>
+  <button data-view="heute" class="aktiv"><span class="ic">✨</span>Heute</button>
+  <button data-view="schrank"><span class="ic">👗</span>Schrank</button>
+  <button data-view="add"><span class="ic">➕</span>Neu</button>
+  <button data-view="mehr"><span class="ic">⚙️</span>Mehr</button>
+</nav>
+
+<!-- Modal (Detail/Bearbeiten & Feedback) -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-inhalt"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   Konstanten
+========================================================= */
+const KATEGORIEN = ["Oberteil","Pullover","Hose","Rock","Kleid","Jacke","Schuhe","Tasche","Accessoire"];
+const FARBEN = ["Schwarz","Weiß","Grau","Beige","Braun","Dunkelblau","Blau","Hellblau","Rot","Bordeaux","Rosa","Pink","Lila","Grün","Oliv","Gelb","Orange","Gold","Silber","Bunt"];
+const NEUTRAL = ["Schwarz","Weiß","Grau","Beige","Braun","Dunkelblau","Gold","Silber"];
+const HARMONIE = {
+  "Blau":["Rot","Rosa","Gelb","Bordeaux"], "Hellblau":["Rosa","Gelb","Bordeaux"],
+  "Rot":["Blau","Hellblau"], "Bordeaux":["Rosa","Blau","Hellblau","Grün"],
+  "Rosa":["Blau","Hellblau","Bordeaux","Grün","Oliv"], "Pink":["Grün","Oliv"],
+  "Grün":["Rosa","Bordeaux","Pink"], "Oliv":["Rosa","Pink","Orange"],
+  "Gelb":["Blau","Hellblau","Lila"], "Lila":["Gelb"], "Orange":["Oliv","Blau"], "Bunt":[]
+};
+const MUSTER = ["uni","gestreift","kariert","gepunktet","floral","gemustert"];
+const STILE = ["casual","business","elegant","sportlich","festlich"];
+const WAERME_LABELS = {1:"1 · luftig/Sommer",2:"2 · normal",3:"3 · warm",4:"4 · sehr warm/Winter"};
+const ANLAESSE = [
+  {name:"Alltag",   emoji:"🏠", stile:["casual","sportlich"]},
+  {name:"Büro",     emoji:"💼", stile:["business","casual","elegant"]},
+  {name:"Ausgehen", emoji:"🍷", stile:["elegant","casual","festlich"]},
+  {name:"Sport",    emoji:"🏃‍♀️", stile:["sportlich"]},
+  {name:"Festlich", emoji:"✨", stile:["festlich","elegant"]}
+];
+const KAT_EMOJI = {Oberteil:"👚",Pullover:"🧶",Hose:"👖",Rock:"👗",Kleid:"👗",Jacke:"🧥",Schuhe:"👟",Tasche:"👜",Accessoire:"💍"};
+const MODELL = "claude-opus-5";
+
+/* =========================================================
+   IndexedDB
+========================================================= */
+const DB = {
+  _db: null,
+  open(){
+    if (this._db) return Promise.resolve(this._db);
+    return new Promise((res, rej) => {
+      const r = indexedDB.open("garderobe", 1);
+      r.onupgradeneeded = () => {
+        const d = r.result;
+        if (!d.objectStoreNames.contains("items"))   d.createObjectStore("items",   {keyPath:"id"});
+        if (!d.objectStoreNames.contains("outfits")) d.createObjectStore("outfits", {keyPath:"id"});
+      };
+      r.onsuccess = () => { this._db = r.result; res(this._db); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  async _req(store, mode, fn){
+    const d = await this.open();
+    return new Promise((res, rej) => {
+      const t = d.transaction(store, mode);
+      const q = fn(t.objectStore(store));
+      q.onsuccess = () => res(q.result);
+      q.onerror = () => rej(q.error);
+    });
+  },
+  put(store, val){ return this._req(store, "readwrite", s => s.put(val)); },
+  del(store, key){ return this._req(store, "readwrite", s => s.delete(key)); },
+  alle(store){ return this._req(store, "readonly", s => s.getAll()); },
+  leeren(store){ return this._req(store, "readwrite", s => s.clear()); }
+};
+
+/* =========================================================
+   Zustand & Einstellungen
+========================================================= */
+let ITEMS = [];
+let OUTFITS = [];
+let EINST = ladeEinst();
+let aktuellerAnlass = "Alltag";
+let wetterHeute = null;       // {tmax, tmin, code, beschr}
+let addFoto = null;           // dataURL des neuen Fotos
+
+function ladeEinst(){
+  try { return Object.assign({apiKey:"", ort:null, stilprofil:"", fbZaehler:0}, JSON.parse(localStorage.getItem("ka_einst")||"{}")); }
+  catch(e){ return {apiKey:"", ort:null, stilprofil:"", fbZaehler:0}; }
+}
+function speichereEinst(){ localStorage.setItem("ka_einst", JSON.stringify(EINST)); }
+
+/* =========================================================
+   Utilities
+========================================================= */
+const $ = id => document.getElementById(id);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const heuteStr = () => new Date().toISOString().slice(0, 10);
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+let toastTimer = null;
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("zeig");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("zeig"), 2600);
+}
+
+function komprimiereFoto(file, maxDim = 900, qualitaet = 0.82){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const skala = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * skala), h = Math.round(img.height * skala);
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(img.src);
+      res(c.toDataURL("image/jpeg", qualitaet));
+    };
+    img.onerror = () => rej(new Error("Bild konnte nicht geladen werden"));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------- Modal ---------- */
+function zeigeModal(html){
+  $("modal-inhalt").innerHTML = html;
+  $("modal-bg").classList.add("offen");
+}
+function schliesseModal(){ $("modal-bg").classList.remove("offen"); }
+$("modal-bg").addEventListener("click", e => { if (e.target === $("modal-bg")) schliesseModal(); });
+
+/* =========================================================
+   Navigation
+========================================================= */
+document.querySelectorAll("nav button").forEach(b => {
+  b.addEventListener("click", () => zeigeView(b.dataset.view));
+});
+function zeigeView(name){
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("aktiv"));
+  $("view-" + name).classList.add("aktiv");
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("aktiv", b.dataset.view === name));
+  if (name === "schrank") renderSchrank();
+  if (name === "mehr") renderMehr();
+  if (name === "heute") renderHeuteGewaehlt();
+  window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   Formular (für Neu & Bearbeiten)
+========================================================= */
+function formularHtml(it = {}){
+  const sel = (opts, val) => opts.map(o => `<option ${o === val ? "selected" : ""}>${o}</option>`).join("");
+  return `
+    <label>Name</label>
+    <input type="text" data-f="name" value="${esc(it.name||"")}" placeholder="z. B. Weiße Bluse">
+    <div class="zeile">
+      <div><label>Kategorie</label><select data-f="kategorie">${sel(KATEGORIEN, it.kategorie||"Oberteil")}</select></div>
+      <div><label>Stil</label><select data-f="stil">${sel(STILE, it.stil||"casual")}</select></div>
+    </div>
+    <div class="zeile">
+      <div><label>Hauptfarbe</label><select data-f="hauptfarbe">${sel(FARBEN, it.hauptfarbe||"Schwarz")}</select></div>
+      <div><label>Zweitfarbe</label><select data-f="zweitfarbe"><option value="">– keine –</option>${sel(FARBEN, it.zweitfarbe||"")}</select></div>
+    </div>
+    <div class="zeile">
+      <div><label>Muster</label><select data-f="muster">${sel(MUSTER, it.muster||"uni")}</select></div>
+      <div><label>Wärme</label><select data-f="waerme">${[1,2,3,4].map(w=>`<option value="${w}" ${(it.waerme||2)==w?"selected":""}>${WAERME_LABELS[w]}</option>`).join("")}</select></div>
+    </div>
+    <div class="zeile">
+      <div><label>Material</label><input type="text" data-f="material" value="${esc(it.material||"")}" placeholder="z. B. Baumwolle"></div>
+      <div><label>Marke</label><input type="text" data-f="marke" value="${esc(it.marke||"")}" placeholder="optional"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:15px;color:var(--ink);margin-top:16px">
+      <input type="checkbox" data-f="favorit" style="width:20px;height:20px" ${it.favorit?"checked":""}> ⭐ Favorit (wird öfter vorgeschlagen)
+    </label>`;
+}
+function leseFormular(wurzel){
+  const d = {};
+  wurzel.querySelectorAll("[data-f]").forEach(el => {
+    d[el.dataset.f] = el.type === "checkbox" ? el.checked : el.value.trim();
+  });
+  d.waerme = parseInt(d.waerme) || 2;
+  return d;
+}
+
+/* =========================================================
+   Hinzufügen
+========================================================= */
+function initAdd(){
+  $("add-form").innerHTML = formularHtml();
+  $("foto-box").addEventListener("click", () => $("foto-input").click());
+  $("foto-input").addEventListener("change", async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      addFoto = await komprimiereFoto(file);
+      $("foto-box").innerHTML = `<img src="${addFoto}">`;
+      if (EINST.apiKey) analysiereFoto();
+    } catch(err){ toast("Foto konnte nicht verarbeitet werden"); }
+    e.target.value = "";
+  });
+  $("btn-speichern").addEventListener("click", speichereNeuesTeil);
+  $("btn-add-reset").addEventListener("click", resetAdd);
+}
+function resetAdd(){
+  addFoto = null;
+  $("foto-box").innerHTML = `<span class="plus">📷</span><span>Foto aufnehmen</span>`;
+  $("add-form").innerHTML = formularHtml();
+  $("ki-status").innerHTML = "";
+}
+async function speichereNeuesTeil(){
+  const d = leseFormular($("add-form"));
+  if (!d.name){ toast("Bitte gib einen Namen ein"); return; }
+  const it = Object.assign({ id: uid(), foto: addFoto, archiviert: false, angelegt: heuteStr() }, d);
+  await DB.put("items", it);
+  ITEMS.push(it);
+  toast("✅ „" + d.name + "“ gespeichert");
+  resetAdd();
+}
+
+/* ---------- KI-Analyse des Fotos ---------- */
+async function analysiereFoto(){
+  $("ki-status").innerHTML = `<div style="margin-top:12px"><div class="spinner"></div><div class="laden-text">KI analysiert das Foto …</div></div>`;
+  try {
+    const base64 = addFoto.split(",")[1];
+    const schema = {
+      type: "object",
+      properties: {
+        name:       { type: "string", description: "Kurzer deutscher Name, z. B. 'Weiße Bluse'" },
+        kategorie:  { type: "string", enum: KATEGORIEN },
+        hauptfarbe: { type: "string", enum: FARBEN },
+        zweitfarbe: { type: "string", enum: FARBEN.concat([""]) },
+        muster:     { type: "string", enum: MUSTER },
+        stil:       { type: "string", enum: STILE },
+        waerme:     { type: "integer", enum: [1,2,3,4] },
+        material:   { type: "string" }
+      },
+      required: ["name","kategorie","hauptfarbe","zweitfarbe","muster","stil","waerme","material"],
+      additionalProperties: false
+    };
+    const antwort = await claudeAnfrage({
+      model: MODELL, max_tokens: 1000,
+      system: "Du bist eine Modeexpertin. Analysiere das Foto eines einzelnen Kleidungsstücks und beschreibe es präzise auf Deutsch. Wärme: 1=luftig/Sommer, 2=normal, 3=warm, 4=sehr warm/Winter. Material nur angeben, wenn erkennbar, sonst leer.",
+      output_config: { format: { type: "json_schema", schema } },
+      messages: [{ role: "user", content: [
+        { type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+        { type: "text", text: "Analysiere dieses Kleidungsstück." }
+      ]}]
+    });
+    const daten = JSON.parse(textAus(antwort));
+    $("add-form").innerHTML = formularHtml(daten);
+    $("ki-status").innerHTML = `<p class="hinweis" style="text-align:center;margin-top:10px">✨ Automatisch erkannt – bitte kurz prüfen</p>`;
+  } catch(err){
+    console.error(err);
+    $("ki-status").innerHTML = `<p class="hinweis" style="text-align:center;margin-top:10px">⚠️ KI-Analyse fehlgeschlagen (${esc(err.message)}). Bitte Felder manuell ausfüllen.</p>`;
+  }
+}
+
+/* =========================================================
+   Claude API
+========================================================= */
+async function claudeAnfrage(body){
+  if (!EINST.apiKey) throw new Error("Kein API-Key hinterlegt");
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": EINST.apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok){
+    let detail = "HTTP " + res.status;
+    try { detail = (await res.json()).error?.message || detail; } catch(e){}
+    throw new Error(detail);
+  }
+  const daten = await res.json();
+  if (daten.stop_reason === "refusal") throw new Error("Anfrage wurde von der KI abgelehnt");
+  return daten;
+}
+function textAus(antwort){
+  const block = (antwort.content || []).find(b => b.type === "text");
+  if (!block) throw new Error("Keine Text-Antwort erhalten");
+  return block.text;
+}
+
+/* =========================================================
+   Schrank
+========================================================= */
+let schrankFilter = "Alle";
+let zeigeArchiv = false;
+
+function renderSchrank(){
+  const filter = ["Alle", ...KATEGORIEN, "⭐ Favoriten", "🗄 Archiv"];
+  $("filter-chips").innerHTML = filter.map(f =>
+    `<button class="chip ${f===schrankFilter?"aktiv":""}" data-filter="${esc(f)}">${esc(f)}</button>`).join("");
+  $("filter-chips").querySelectorAll(".chip").forEach(c =>
+    c.addEventListener("click", () => { schrankFilter = c.dataset.filter; renderSchrank(); }));
+
+  let liste = ITEMS.slice().sort((a,b) => (b.angelegt||"").localeCompare(a.angelegt||""));
+  if (schrankFilter === "🗄 Archiv") liste = liste.filter(i => i.archiviert);
+  else {
+    liste = liste.filter(i => !i.archiviert);
+    if (schrankFilter === "⭐ Favoriten") liste = liste.filter(i => i.favorit);
+    else if (schrankFilter !== "Alle") liste = liste.filter(i => i.kategorie === schrankFilter);
+  }
+
+  $("schrank-leer").style.display = ITEMS.length ? "none" : "block";
+  const aktiv = ITEMS.filter(i => !i.archiviert).length;
+  $("schrank-sub").textContent = aktiv ? `${aktiv} Teile. Alles an einem Ort.` : "Alles an einem Ort.";
+  $("schrank-grid").innerHTML = liste.map((i, nr) => `
+    <div class="teil rv ${i.archiviert?"archiviert":""}" data-id="${i.id}" style="transition-delay:${Math.min(nr*35,420)}ms">
+      ${i.foto ? `<img src="${i.foto}" loading="lazy">` : `<div class="kein-foto">${KAT_EMOJI[i.kategorie]||"👕"}</div>`}
+      ${i.favorit ? `<span class="fav">⭐</span>` : ""}
+      <div class="name">${esc(i.name)}</div>
+    </div>`).join("");
+  $("schrank-grid").querySelectorAll(".teil").forEach(t =>
+    t.addEventListener("click", () => zeigeDetail(t.dataset.id)));
+  beobachte($("schrank-grid"));
+}
+
+function zeigeDetail(id){
+  const it = ITEMS.find(i => i.id === id);
+  if (!it) return;
+  zeigeModal(`
+    <div class="modal-kopf"><h2>${esc(it.name)}</h2><button class="schliessen" onclick="schliesseModal()">×</button></div>
+    ${it.foto ? `<img src="${it.foto}" style="width:55%;max-width:200px;border-radius:14px;display:block;margin:0 auto 12px">` : ""}
+    <div id="detail-form">${formularHtml(it)}</div>
+    <div style="margin-top:16px"><button class="btn" id="btn-detail-speichern">Änderungen speichern</button></div>
+    <div class="zeile" style="margin-top:10px">
+      <button class="btn sekundaer" id="btn-detail-archiv">${it.archiviert ? "Aus Archiv holen" : "🗄 Archivieren"}</button>
+      <button class="btn sekundaer" style="color:var(--rot)" id="btn-detail-loeschen">🗑 Löschen</button>
+    </div>`);
+  $("btn-detail-speichern").addEventListener("click", async () => {
+    Object.assign(it, leseFormular($("detail-form")));
+    await DB.put("items", it);
+    schliesseModal(); renderSchrank(); toast("Gespeichert");
+  });
+  $("btn-detail-archiv").addEventListener("click", async () => {
+    it.archiviert = !it.archiviert;
+    await DB.put("items", it);
+    schliesseModal(); renderSchrank();
+    toast(it.archiviert ? "Ins Archiv verschoben" : "Wieder aktiv");
+  });
+  $("btn-detail-loeschen").addEventListener("click", async () => {
+    if (!confirm(`„${it.name}“ wirklich löschen?`)) return;
+    await DB.del("items", it.id);
+    ITEMS = ITEMS.filter(x => x.id !== it.id);
+    schliesseModal(); renderSchrank(); toast("Gelöscht");
+  });
+}
+
+/* =========================================================
+   Wetter (Open-Meteo, ohne Key)
+========================================================= */
+const WETTER_CODES = [
+  [0,"☀️","Sonnig"],[1,"🌤","Überwiegend sonnig"],[2,"⛅️","Teils bewölkt"],[3,"☁️","Bedeckt"],
+  [45,"🌫","Nebel"],[48,"🌫","Nebel"],[51,"🌦","Leichter Niesel"],[53,"🌦","Niesel"],[55,"🌧","Starker Niesel"],
+  [61,"🌧","Leichter Regen"],[63,"🌧","Regen"],[65,"🌧","Starker Regen"],[66,"🌧","Gefrierender Regen"],[67,"🌧","Gefrierender Regen"],
+  [71,"🌨","Leichter Schnee"],[73,"🌨","Schnee"],[75,"❄️","Starker Schnee"],[77,"❄️","Schneegriesel"],
+  [80,"🌦","Regenschauer"],[81,"🌧","Regenschauer"],[82,"⛈","Heftige Schauer"],[85,"🌨","Schneeschauer"],[86,"🌨","Schneeschauer"],
+  [95,"⛈","Gewitter"],[96,"⛈","Gewitter"],[99,"⛈","Gewitter"]
+];
+function wetterInfo(code){
+  let best = ["🌡",""];
+  for (const [c, ic, txt] of WETTER_CODES) if (code >= c) best = [ic, txt];
+  return best;
+}
+async function ladeWetter(){
+  if (!EINST.ort) return;
+  const cacheKey = "ka_wetter_" + heuteStr();
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached){ wetterHeute = JSON.parse(cached); renderWetter(); return; }
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${EINST.ort.lat}&longitude=${EINST.ort.lon}&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max&timezone=auto&forecast_days=1`;
+    const r = await fetch(url);
+    const d = await r.json();
+    wetterHeute = {
+      tmax: Math.round(d.daily.temperature_2m_max[0]),
+      tmin: Math.round(d.daily.temperature_2m_min[0]),
+      regen: d.daily.precipitation_probability_max[0],
+      code: d.daily.weathercode[0]
+    };
+    sessionStorage.setItem(cacheKey, JSON.stringify(wetterHeute));
+    renderWetter();
+  } catch(e){
+    $("wetter-inhalt").innerHTML = `<div class="hinweis">Wetter konnte nicht geladen werden.</div>`;
+  }
+}
+function renderWetter(){
+  if (!wetterHeute) return;
+  const [icon, beschr] = wetterInfo(wetterHeute.code);
+  $("wetter-inhalt").innerHTML = `
+    <div class="icon">${icon}</div>
+    <div>
+      <div class="temp">${wetterHeute.tmax}° <span style="color:var(--ink2);font-weight:400;font-size:15px">/ ${wetterHeute.tmin}°</span></div>
+      <div class="beschr">${beschr} · ${esc(EINST.ort.name)}${wetterHeute.regen >= 40 ? " · ☔️ " + wetterHeute.regen + "% Regen" : ""}</div>
+    </div>`;
+}
+
+/* =========================================================
+   Outfit-Logik (Regel-Engine)
+========================================================= */
+function erlaubteWaerme(){
+  if (!wetterHeute) return [1,2,3,4];
+  const t = wetterHeute.tmax;
+  if (t >= 25) return [1,2];
+  if (t >= 18) return [1,2,3];
+  if (t >= 11) return [2,3];
+  return [3,4];
+}
+function brauchtJacke(){ return wetterHeute ? wetterHeute.tmax < 16 : false; }
+
+function zuletztGetragen(tage = 4){
+  const grenze = new Date(Date.now() - tage * 864e5).toISOString().slice(0,10);
+  const ids = new Set();
+  OUTFITS.filter(o => o.datum >= grenze && o.status !== "nicht_getragen")
+         .forEach(o => o.itemIds.forEach(id => ids.add(id)));
+  return ids;
+}
+function itemBewertungen(){
+  const b = {};
+  OUTFITS.forEach(o => {
+    if (!o.rating) return;
+    const delta = o.rating === "up" ? 1 : -1;
+    o.itemIds.forEach(id => b[id] = (b[id]||0) + delta);
+  });
+  return b;
+}
+
+function kandidaten(anlass){
+  const stile = ANLAESSE.find(a => a.name === anlass).stile;
+  const w = erlaubteWaerme();
+  return ITEMS.filter(i => {
+    if (i.archiviert) return false;
+    if (!stile.includes(i.stil)) return false;
+    const kleidung = ["Oberteil","Pullover","Hose","Rock","Kleid","Jacke"].includes(i.kategorie);
+    if (kleidung && !w.includes(i.waerme)) return false;
+    if (i.kategorie === "Schuhe" && !w.includes(i.waerme) && !w.includes(i.waerme-1) && !w.includes(i.waerme+1)) return false;
+    return true;
+  });
+}
+
+function farbenPassen(a, b){
+  if (!a || !b || a === b) return true;
+  if (NEUTRAL.includes(a) || NEUTRAL.includes(b)) return true;
+  return (HARMONIE[a]||[]).includes(b) || (HARMONIE[b]||[]).includes(a);
+}
+function outfitFarbenOk(teile){
+  const farben = teile.filter(t => !["Schuhe","Tasche","Accessoire"].includes(t.kategorie)).map(t => t.hauptfarbe);
+  for (let i = 0; i < farben.length; i++)
+    for (let j = i+1; j < farben.length; j++)
+      if (!farbenPassen(farben[i], farben[j])) return false;
+  return true;
+}
+
+function regelOutfits(anlass, n = 3){
+  const pool = kandidaten(anlass);
+  const kürzlich = zuletztGetragen();
+  const ratings = itemBewertungen();
+  const gewicht = it => {
+    let g = 1 + (it.favorit ? 1.5 : 0) + (ratings[it.id]||0) * 0.5 - (kürzlich.has(it.id) ? 1.2 : 0);
+    return Math.max(0.1, g);
+  };
+  const zieh = liste => {
+    if (!liste.length) return null;
+    const summe = liste.reduce((s,i) => s + gewicht(i), 0);
+    let r = Math.random() * summe;
+    for (const i of liste){ r -= gewicht(i); if (r <= 0) return i; }
+    return liste[liste.length-1];
+  };
+  const tops    = pool.filter(i => ["Oberteil","Pullover"].includes(i.kategorie));
+  const bottoms = pool.filter(i => ["Hose","Rock"].includes(i.kategorie));
+  const kleider = pool.filter(i => i.kategorie === "Kleid");
+  const schuhe  = pool.filter(i => i.kategorie === "Schuhe");
+  const jacken  = pool.filter(i => i.kategorie === "Jacke");
+  const extras  = pool.filter(i => ["Tasche","Accessoire"].includes(i.kategorie));
+
+  const ergebnisse = [];
+  const gesehen = new Set();
+  for (let versuch = 0; versuch < 60 && ergebnisse.length < n; versuch++){
+    let teile = [];
+    const nimmKleid = kleider.length && (!tops.length || !bottoms.length || Math.random() < 0.35);
+    if (nimmKleid){ teile.push(zieh(kleider)); }
+    else {
+      const t = zieh(tops), b = zieh(bottoms);
+      if (!t || !b) { if (!kleider.length) break; else continue; }
+      teile.push(t, b);
+    }
+    const s = zieh(schuhe); if (s) teile.push(s);
+    if (brauchtJacke()){ const j = zieh(jacken); if (j) teile.push(j); }
+    if (extras.length && Math.random() < 0.5){ const e = zieh(extras); if (e) teile.push(e); }
+    teile = teile.filter(Boolean);
+    if (teile.length < 2) continue;
+    if (!outfitFarbenOk(teile)) continue;
+    const key = teile.map(t => t.id).sort().join("|");
+    if (gesehen.has(key)) continue;
+    gesehen.add(key);
+    ergebnisse.push({ itemIds: teile.map(t => t.id), titel: outfitTitel(teile), begruendung: regelBegruendung(teile), quelle: "regeln" });
+  }
+  return ergebnisse;
+}
+function outfitTitel(teile){
+  const haupt = teile.find(t => t.kategorie === "Kleid") || teile.find(t => ["Oberteil","Pullover"].includes(t.kategorie));
+  return haupt ? `Look mit ${haupt.name}` : "Dein Look";
+}
+function regelBegruendung(teile){
+  const farben = [...new Set(teile.map(t => t.hauptfarbe))].slice(0,3).join(", ");
+  return `Farblich abgestimmt (${farben}) und passend zu Wetter & Anlass.`;
+}
+
+/* =========================================================
+   Outfit-Generierung (KI)
+========================================================= */
+async function kiOutfits(anlass){
+  const pool = kandidaten(anlass);
+  const kürzlich = [...zuletztGetragen()];
+  const ratings = itemBewertungen();
+  const kompakt = pool.slice(0, 120).map(i => ({
+    id: i.id, name: i.name, kategorie: i.kategorie,
+    farben: [i.hauptfarbe, i.zweitfarbe].filter(Boolean).join("/"),
+    muster: i.muster, stil: i.stil, waerme: i.waerme,
+    favorit: !!i.favorit, bewertung: ratings[i.id] || 0
+  }));
+  const schema = {
+    type: "object",
+    properties: {
+      outfits: { type: "array", items: {
+        type: "object",
+        properties: {
+          titel: { type: "string" },
+          item_ids: { type: "array", items: { type: "string" } },
+          begruendung: { type: "string" }
+        },
+        required: ["titel","item_ids","begruendung"],
+        additionalProperties: false
+      }}
+    },
+    required: ["outfits"], additionalProperties: false
+  };
+  const wetterText = wetterHeute
+    ? `${wetterHeute.tmax}°C (min ${wetterHeute.tmin}°C), ${wetterInfo(wetterHeute.code)[1]}, Regenwahrscheinlichkeit ${wetterHeute.regen}%`
+    : "unbekannt";
+  const antwort = await claudeAnfrage({
+    model: MODELL, max_tokens: 2000,
+    system: "Du bist eine erfahrene persönliche Stylistin. Du stellst aus einer vorhandenen Garderobe stimmige, modische Outfits zusammen. Antworte auf Deutsch. Verwende ausschließlich die übergebenen item_ids. Jedes Outfit: entweder ein Kleid ODER Oberteil/Pullover + Hose/Rock, dazu Schuhe falls vorhanden, bei kühlem Wetter eine Jacke, optional Tasche/Accessoire. Favoriten (favorit=true) und gut bewertete Teile (bewertung>0) bevorzugen, schlecht bewertete meiden. Die 3 Outfits sollen sich deutlich unterscheiden. Begründung: 1–2 charmante Sätze.",
+    output_config: { format: { type: "json_schema", schema } },
+    messages: [{ role: "user", content: `Garderobe (JSON): ${JSON.stringify(kompakt)}
+
+Wetter heute: ${wetterText}
+Anlass: ${anlass}
+${EINST.stilprofil ? "Stilprofil der Trägerin: " + EINST.stilprofil : ""}
+${kürzlich.length ? "Diese Teile wurden kürzlich getragen, möglichst vermeiden: " + kürzlich.join(", ") : ""}
+
+Erstelle 3 Outfits.` }]
+  });
+  const daten = JSON.parse(textAus(antwort));
+  const gueltigeIds = new Set(pool.map(i => i.id));
+  return daten.outfits
+    .map(o => ({ titel: o.titel, begruendung: o.begruendung, itemIds: o.item_ids.filter(id => gueltigeIds.has(id)), quelle: "ki" }))
+    .filter(o => o.itemIds.length >= 2)
+    .slice(0, 3);
+}
+
+/* =========================================================
+   Heute-Ansicht
+========================================================= */
+function initHeute(){
+  $("anlass-chips").innerHTML = ANLAESSE.map(a =>
+    `<button class="chip ${a.name===aktuellerAnlass?"aktiv":""}" data-anlass="${a.name}">${a.emoji} ${a.name}</button>`).join("");
+  $("anlass-chips").querySelectorAll(".chip").forEach(c =>
+    c.addEventListener("click", () => {
+      aktuellerAnlass = c.dataset.anlass;
+      $("anlass-chips").querySelectorAll(".chip").forEach(x => x.classList.toggle("aktiv", x === c));
+    }));
+  $("btn-outfits").addEventListener("click", generiereOutfits);
+}
+
+async function generiereOutfits(){
+  const aktive = ITEMS.filter(i => !i.archiviert);
+  if (aktive.length < 4){
+    toast("Lege zuerst ein paar Kleidungsstücke an (mind. Oberteil, Hose, Schuhe)");
+    return;
+  }
+  const ziel = $("outfit-ergebnisse");
+  ziel.innerHTML = `<div class="karte"><div class="spinner"></div><div class="laden-text">${EINST.apiKey ? "Deine KI-Stylistin überlegt …" : "Outfits werden zusammengestellt …"}</div></div>`;
+  let outfits = [];
+  if (EINST.apiKey){
+    try { outfits = await kiOutfits(aktuellerAnlass); }
+    catch(e){ console.error(e); toast("KI nicht erreichbar – nutze Regel-Vorschläge"); }
+  }
+  if (!outfits.length) outfits = regelOutfits(aktuellerAnlass);
+  if (!outfits.length){
+    ziel.innerHTML = `<div class="karte hinweis">Für „${esc(aktuellerAnlass)}“ und das heutige Wetter finde ich keine passende Kombination. Prüfe, ob Stil und Wärme deiner Teile richtig gesetzt sind.</div>`;
+    return;
+  }
+  ziel.innerHTML = outfits.map((o, idx) => outfitKarte(o, idx)).join("");
+  ziel.querySelectorAll("[data-wear]").forEach(b =>
+    b.addEventListener("click", () => wähleOutfit(outfits[parseInt(b.dataset.wear)])));
+  beobachte(ziel);
+}
+
+function outfitKarte(o, idx){
+  const teile = o.itemIds.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
+  return `
+  <div class="karte rv" style="transition-delay:${idx*110}ms">
+    <div class="outfit-titel">
+      <h3>${esc(o.titel)}</h3>
+      <span class="tag">${o.quelle === "ki" ? "✨ KI" : "🎲 Regeln"}</span>
+    </div>
+    <div class="outfit-fotos">
+      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : (KAT_EMOJI[t.kategorie]||"👕")}</div>`).join("")}
+    </div>
+    <div class="hinweis" style="font-size:12.5px;margin-bottom:4px">${teile.map(t => esc(t.name)).join(" · ")}</div>
+    <div class="begruendung">${esc(o.begruendung)}</div>
+    <button class="btn sekundaer" data-wear="${idx}">Das trage ich heute ✓</button>
+  </div>`;
+}
+
+async function wähleOutfit(o){
+  const eintrag = {
+    id: uid(), datum: heuteStr(), itemIds: o.itemIds, titel: o.titel,
+    anlass: aktuellerAnlass, quelle: o.quelle, status: "geplant", rating: null
+  };
+  await DB.put("outfits", eintrag);
+  OUTFITS.push(eintrag);
+  $("outfit-ergebnisse").innerHTML = "";
+  renderHeuteGewaehlt();
+  toast("Viel Spaß mit deinem Outfit! 💃");
+}
+
+function renderHeuteGewaehlt(){
+  const heutiges = OUTFITS.filter(o => o.datum === heuteStr() && o.status === "geplant").pop();
+  const ziel = $("heute-gewaehlt");
+  if (!heutiges){ ziel.innerHTML = ""; return; }
+  const teile = heutiges.itemIds.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
+  ziel.innerHTML = `
+  <div class="karte rv" style="border:1.5px solid var(--blau)">
+    <div class="outfit-titel"><h3>Heutiges Outfit</h3><span class="tag" style="background:rgba(0,113,227,.1);color:var(--blau)">✓ gewählt</span></div>
+    <div class="outfit-fotos">
+      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : (KAT_EMOJI[t.kategorie]||"👕")}</div>`).join("")}
+    </div>
+    <div class="hinweis" style="font-size:12.5px">${teile.map(t => esc(t.name)).join(" · ")}</div>
+  </div>`;
+  beobachte(ziel);
+}
+
+/* =========================================================
+   Feedback am Folgetag
+========================================================= */
+function offenesFeedback(){
+  return OUTFITS.filter(o => o.status === "geplant" && o.datum < heuteStr());
+}
+function starteFeedback(){
+  const offen = offenesFeedback();
+  if (!offen.length) return;
+  frageFeedback(offen[0]);
+}
+function frageFeedback(o){
+  const teile = o.itemIds.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
+  const datum = new Date(o.datum + "T12:00:00").toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+  zeigeModal(`
+    <div class="modal-kopf"><h2>Kurzes Feedback 💬</h2><button class="schliessen" onclick="schliesseModal()">×</button></div>
+    <p class="hinweis">Dein geplantes Outfit vom <b>${datum}</b> – wie war's?</p>
+    <div class="outfit-fotos" style="margin-top:12px">
+      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : (KAT_EMOJI[t.kategorie]||"👕")}</div>`).join("")}
+    </div>
+    <div class="hinweis" style="font-size:12.5px;margin-bottom:14px">${teile.map(t => esc(t.name)).join(" · ")}</div>
+    <button class="btn" id="fb-up">👍 Getragen & gefiel mir</button>
+    <div style="height:10px"></div>
+    <button class="btn sekundaer" id="fb-down">👎 Getragen, aber nicht so meins</button>
+    <div style="height:10px"></div>
+    <button class="btn leise" id="fb-nein">Gar nicht getragen</button>`);
+  $("fb-up").addEventListener("click", () => speichereFeedback(o, "getragen", "up"));
+  $("fb-down").addEventListener("click", () => speichereFeedback(o, "getragen", "down"));
+  $("fb-nein").addEventListener("click", () => speichereFeedback(o, "nicht_getragen", null));
+}
+async function speichereFeedback(o, status, rating){
+  o.status = status; o.rating = rating;
+  await DB.put("outfits", o);
+  schliesseModal();
+  if (rating){
+    EINST.fbZaehler++;
+    speichereEinst();
+    if (EINST.apiKey && EINST.fbZaehler % 6 === 0) aktualisiereStilprofil().catch(console.error);
+  }
+  toast("Danke! Das hilft den nächsten Vorschlägen 💡");
+  const weitere = offenesFeedback();
+  if (weitere.length) setTimeout(() => frageFeedback(weitere[0]), 400);
+}
+
+/* =========================================================
+   Stilprofil
+========================================================= */
+async function aktualisiereStilprofil(){
+  const bewertete = OUTFITS.filter(o => o.rating);
+  if (!bewertete.length) throw new Error("Noch kein Feedback vorhanden");
+  const beschreibe = o => o.itemIds.map(id => {
+    const i = ITEMS.find(x => x.id === id);
+    return i ? `${i.name} (${i.kategorie}, ${i.hauptfarbe}, ${i.stil})` : null;
+  }).filter(Boolean).join(" + ");
+  const favoriten = ITEMS.filter(i => i.favorit && !i.archiviert).map(i => `${i.name} (${i.hauptfarbe}, ${i.stil})`);
+  const antwort = await claudeAnfrage({
+    model: MODELL, max_tokens: 500,
+    system: "Du bist eine Stilberaterin. Erstelle aus den Daten ein prägnantes Stilprofil (max. 100 Wörter, Deutsch, direkt verwendbar als Kontext für Outfit-Empfehlungen). Beschreibe bevorzugte Farben, Silhouetten, Stile und was gemieden werden sollte.",
+    messages: [{ role: "user", content:
+      `Favoriten: ${favoriten.join("; ") || "keine"}
+Outfits mit 👍: ${bewertete.filter(o => o.rating === "up").map(beschreibe).join(" | ") || "keine"}
+Outfits mit 👎: ${bewertete.filter(o => o.rating === "down").map(beschreibe).join(" | ") || "keine"}` }]
+  });
+  EINST.stilprofil = textAus(antwort).trim();
+  speichereEinst();
+  return EINST.stilprofil;
+}
+
+/* =========================================================
+   Mehr / Einstellungen
+========================================================= */
+function initMehr(){
+  $("btn-ort").addEventListener("click", async () => {
+    const name = $("ort-input").value.trim();
+    if (!name) return;
+    $("ort-status").textContent = "Suche …";
+    try {
+      const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=de`);
+      const d = await r.json();
+      if (!d.results || !d.results.length){ $("ort-status").textContent = "❌ Ort nicht gefunden"; return; }
+      const o = d.results[0];
+      EINST.ort = { name: o.name, lat: o.latitude, lon: o.longitude };
+      speichereEinst();
+      sessionStorage.removeItem("ka_wetter_" + heuteStr());
+      $("ort-status").textContent = `✅ ${o.name}${o.admin1 ? ", " + o.admin1 : ""} gespeichert`;
+      ladeWetter();
+    } catch(e){ $("ort-status").textContent = "❌ Fehler bei der Suche"; }
+  });
+  $("btn-key-speichern").addEventListener("click", () => {
+    EINST.apiKey = $("key-input").value.trim();
+    speichereEinst();
+    $("key-status").textContent = EINST.apiKey ? "✅ Key gespeichert (nur auf diesem Gerät)" : "Key entfernt – App läuft im Regel-Modus";
+  });
+  $("btn-key-test").addEventListener("click", async () => {
+    EINST.apiKey = $("key-input").value.trim() || EINST.apiKey;
+    speichereEinst();
+    $("key-status").textContent = "Teste Verbindung …";
+    try {
+      await claudeAnfrage({ model: MODELL, max_tokens: 20, messages: [{ role: "user", content: "Antworte nur mit: OK" }] });
+      $("key-status").textContent = "✅ Verbindung funktioniert!";
+    } catch(e){ $("key-status").textContent = "❌ " + e.message; }
+  });
+  $("btn-profil-neu").addEventListener("click", async () => {
+    if (!EINST.apiKey){ toast("Dafür wird ein API-Key benötigt"); return; }
+    $("stilprofil-text").textContent = "Wird erstellt …";
+    try { $("stilprofil-text").textContent = await aktualisiereStilprofil(); toast("Stilprofil aktualisiert ✨"); }
+    catch(e){ $("stilprofil-text").textContent = "❌ " + e.message; }
+  });
+  $("btn-export").addEventListener("click", exportiereDaten);
+  $("btn-import").addEventListener("click", () => $("import-input").click());
+  $("import-input").addEventListener("change", importiereDaten);
+}
+function renderMehr(){
+  $("ort-input").value = EINST.ort ? EINST.ort.name : "";
+  $("ort-status").textContent = EINST.ort ? `✅ ${EINST.ort.name} ist gespeichert` : "";
+  $("key-input").value = EINST.apiKey;
+  if (EINST.stilprofil) $("stilprofil-text").textContent = EINST.stilprofil;
+  const getragen = OUTFITS.filter(o => o.status === "getragen").length;
+  $("statistik").textContent = `📊 ${ITEMS.filter(i=>!i.archiviert).length} Teile im Schrank · ${ITEMS.filter(i=>i.archiviert).length} archiviert · ${getragen} Outfits getragen`;
+}
+
+function exportiereDaten(){
+  const daten = { version: 1, exportiert: new Date().toISOString(), items: ITEMS, outfits: OUTFITS,
+                  einstellungen: { ort: EINST.ort, stilprofil: EINST.stilprofil, fbZaehler: EINST.fbZaehler } };
+  const blob = new Blob([JSON.stringify(daten)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `garderobe-backup-${heuteStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Backup-Datei erstellt 💾");
+}
+async function importiereDaten(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
+  try {
+    const daten = JSON.parse(await file.text());
+    if (!Array.isArray(daten.items)) throw new Error("Ungültiges Format");
+    if (!confirm(`Backup vom ${daten.exportiert ? daten.exportiert.slice(0,10) : "?"} mit ${daten.items.length} Teilen importieren? Bestehende Daten werden ersetzt.`)) return;
+    await DB.leeren("items");
+    await DB.leeren("outfits");
+    for (const it of daten.items) await DB.put("items", it);
+    for (const o of (daten.outfits||[])) await DB.put("outfits", o);
+    if (daten.einstellungen){
+      EINST.ort = daten.einstellungen.ort || EINST.ort;
+      EINST.stilprofil = daten.einstellungen.stilprofil || "";
+      EINST.fbZaehler = daten.einstellungen.fbZaehler || 0;
+      speichereEinst();
+    }
+    ITEMS = await DB.alle("items");
+    OUTFITS = await DB.alle("outfits");
+    renderMehr(); renderSchrank();
+    toast(`✅ ${ITEMS.length} Teile importiert`);
+  } catch(err){ toast("❌ Import fehlgeschlagen: " + err.message); }
+}
+
+/* =========================================================
+   Scroll-Reveal (Apple-Style)
+========================================================= */
+const revealObserver = window.IntersectionObserver ? new IntersectionObserver(eintraege => {
+  eintraege.forEach(e => {
+    if (e.isIntersecting){
+      e.target.classList.add("sichtbar");
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 }) : null;
+function beobachte(wurzel = document){
+  const ziele = wurzel.querySelectorAll(".rv:not(.sichtbar)");
+  if (!revealObserver){ ziele.forEach(el => el.classList.add("sichtbar")); return; }
+  ziele.forEach(el => revealObserver.observe(el));
+}
+
+/* =========================================================
+   Start
+========================================================= */
+async function start(){
+  const stunde = new Date().getHours();
+  $("gruss").textContent = stunde < 11 ? "Guten Morgen." : (stunde < 18 ? "Hallo." : "Guten Abend.");
+  $("hero-datum").textContent = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+  ITEMS = await DB.alle("items");
+  OUTFITS = await DB.alle("outfits");
+  initHeute();
+  initAdd();
+  initMehr();
+  renderHeuteGewaehlt();
+  ladeWetter();
+  starteFeedback();
+  beobachte();
+}
+start();
+
+/* Service Worker (nicht bei file://) */
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
