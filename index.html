@@ -849,9 +849,10 @@ async function kiOutfits(anlass){
         properties: {
           titel: { type: "string" },
           item_ids: { type: "array", items: { type: "string" } },
-          begruendung: { type: "string" }
+          begruendung: { type: "string" },
+          mutig: { type: "boolean" }
         },
-        required: ["titel","item_ids","begruendung"],
+        required: ["titel","item_ids","begruendung","mutig"],
         additionalProperties: false
       }}
     },
@@ -862,7 +863,7 @@ async function kiOutfits(anlass){
     : "unbekannt";
   const antwort = await claudeAnfrage({
     model: MODELL, max_tokens: 2000,
-    system: "Du bist eine erfahrene persönliche Stylistin. Du stellst aus einer vorhandenen Garderobe stimmige, modische Outfits zusammen. Antworte auf Deutsch. Verwende ausschließlich die übergebenen item_ids. Jedes Outfit: entweder ein Kleid ODER Oberteil/Pullover + Hose/Rock, dazu Schuhe falls vorhanden, bei kühlem Wetter eine Jacke, optional Tasche/Accessoire. Favoriten (favorit=true) und gut bewertete Teile (bewertung>0) bevorzugen, schlecht bewertete meiden. Die 3 Outfits sollen sich deutlich unterscheiden. Begründung: 1–2 charmante Sätze.",
+    system: "Du bist eine erfahrene persönliche Stylistin. Du stellst aus einer vorhandenen Garderobe stimmige, modische Outfits zusammen. Antworte auf Deutsch. Verwende ausschließlich die übergebenen item_ids. Jedes Outfit: entweder ein Kleid ODER Oberteil/Pullover + Hose/Rock, dazu Schuhe falls vorhanden, bei kühlem Wetter eine Jacke, optional Tasche/Accessoire. Outfit 1 und 2: sicher auf den Geschmack der Trägerin zugeschnitten (mutig=false) – Favoriten (favorit=true) und gut bewertete Teile (bewertung>0) bevorzugen, schlecht bewertete meiden. Outfit 3: ein MUT-OUTFIT (mutig=true) – eine modisch fundierte, überraschende Kombination außerhalb ihrer Komfortzone: ungewohnte Farbpaare, selten getragene oder nie kombinierte Teile, ein Stilbruch mit Absicht. Es muss tragbar und schmeichelhaft bleiben, kein Kostüm. Begründung beim Mut-Outfit: ermutigend erklären, warum genau diese Kombination funktioniert und was sie ausstrahlt. Begründungen sonst: 1–2 charmante Sätze.",
     output_config: { format: { type: "json_schema", schema } },
     messages: [{ role: "user", content: `Garderobe (JSON): ${JSON.stringify(kompakt)}
 
@@ -876,7 +877,7 @@ Erstelle 3 Outfits.` }]
   const daten = JSON.parse(textAus(antwort));
   const gueltigeIds = new Set(pool.map(i => i.id));
   return daten.outfits
-    .map(o => ({ titel: o.titel, begruendung: o.begruendung, itemIds: o.item_ids.filter(id => gueltigeIds.has(id)), quelle: "ki" }))
+    .map(o => ({ titel: o.titel, begruendung: o.begruendung, mutig: !!o.mutig, itemIds: o.item_ids.filter(id => gueltigeIds.has(id)), quelle: "ki" }))
     .filter(o => o.itemIds.length >= 2)
     .slice(0, 3);
 }
@@ -925,7 +926,9 @@ function outfitKarte(o, idx){
   <div class="karte rv" style="transition-delay:${idx*110}ms">
     <div class="outfit-titel">
       <h3>${esc(o.titel)}</h3>
-      <span class="tag">${o.quelle === "ki" ? "✨ KI" : "🎲 Regeln"}</span>
+      ${o.mutig
+        ? `<span class="tag" style="background:rgba(255,69,58,.1);color:#E8462F">🔥 Trau dich</span>`
+        : `<span class="tag">${o.quelle === "ki" ? "✨ KI" : "🎲 Regeln"}</span>`}
     </div>
     <div class="outfit-fotos">
       ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : (KAT_EMOJI[t.kategorie]||"👕")}</div>`).join("")}
@@ -939,7 +942,7 @@ function outfitKarte(o, idx){
 async function wähleOutfit(o){
   const eintrag = {
     id: uid(), datum: heuteStr(), itemIds: o.itemIds, titel: o.titel,
-    anlass: aktuellerAnlass, quelle: o.quelle, status: "geplant", rating: null
+    anlass: aktuellerAnlass, quelle: o.quelle, mutig: !!o.mutig, status: "geplant", rating: null
   };
   await DB.put("outfits", eintrag);
   OUTFITS.push(eintrag);
@@ -1021,11 +1024,11 @@ async function aktualisiereStilprofil(){
   const favoriten = ITEMS.filter(i => i.favorit && !i.archiviert).map(i => `${i.name} (${i.hauptfarbe}, ${i.stil})`);
   const antwort = await claudeAnfrage({
     model: MODELL, max_tokens: 500,
-    system: "Du bist eine Stilberaterin. Erstelle aus den Daten ein prägnantes Stilprofil (max. 100 Wörter, Deutsch, direkt verwendbar als Kontext für Outfit-Empfehlungen). Beschreibe bevorzugte Farben, Silhouetten, Stile und was gemieden werden sollte.",
+    system: "Du bist eine Stilberaterin. Erstelle aus den Daten ein prägnantes Stilprofil (max. 120 Wörter, Deutsch, direkt verwendbar als Kontext für Outfit-Empfehlungen). Beschreibe bevorzugte Farben, Silhouetten, Stile und was gemieden werden sollte. Achte besonders auf die [Mut-Outfit]-Markierungen: Sie zeigen, wie experimentierfreudig die Trägerin ist. Schließe mit einem Satz dazu, wie mutig künftige Mut-Outfits sein dürfen und in welche Richtung sie sich Neues trauen könnte.",
     messages: [{ role: "user", content:
       `Favoriten: ${favoriten.join("; ") || "keine"}
-Outfits mit 👍: ${bewertete.filter(o => o.rating === "up").map(beschreibe).join(" | ") || "keine"}
-Outfits mit 👎: ${bewertete.filter(o => o.rating === "down").map(beschreibe).join(" | ") || "keine"}` }]
+Outfits mit 👍: ${bewertete.filter(o => o.rating === "up").map(o => beschreibe(o) + (o.mutig ? " [Mut-Outfit]" : "")).join(" | ") || "keine"}
+Outfits mit 👎: ${bewertete.filter(o => o.rating === "down").map(o => beschreibe(o) + (o.mutig ? " [Mut-Outfit]" : "")).join(" | ") || "keine"}` }]
   });
   EINST.stilprofil = textAus(antwort).trim();
   speichereEinst();
