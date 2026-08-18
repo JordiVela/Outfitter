@@ -13,33 +13,34 @@
 <style>
 :root{
   --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --ink2:#86868B;
-  --akzent:#1D1D1F; --akzent-dunkel:#000000; --akzent-hell:#F5F5F7;
+  --akzent:#1D1D1F; --akzent-dunkel:#000000; --akzent-hell:rgba(120,120,128,.12);
   --blau:#0071E3; --blau-aktiv:#0077ED;
   --gruen:#34C759; --rot:#FF3B30; --rand:rgba(0,0,0,.08);
   --schatten:0 4px 24px rgba(0,0,0,.06);
   --radius:22px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html{background:var(--bg);min-height:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg);color:var(--ink);
-  padding-bottom:calc(76px + env(safe-area-inset-bottom));
-  -webkit-font-smoothing:antialiased;
+  background:transparent;color:var(--ink);
+  padding-bottom:calc(130px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+/* Sanfte Lichtflecken, die durchs Glas schimmern */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(620px 420px at 12% 6%, rgba(110,165,255,.20), transparent 62%),
+    radial-gradient(520px 400px at 92% 22%, rgba(255,145,180,.16), transparent 62%),
+    radial-gradient(720px 520px at 45% 95%, rgba(165,135,255,.14), transparent 62%),
+    var(--bg);
 }
 h1,h2,h3{font-weight:700;letter-spacing:-.022em}
-.topbar{
-  position:sticky;top:0;z-index:60;
-  background:rgba(251,251,253,.8);
-  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
-  border-bottom:1px solid var(--rand);
-  text-align:center;font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
-  padding:calc(13px + env(safe-area-inset-top)) 0 13px;
-}
-.hero{padding:38px 6px 26px}
+.hero{padding:calc(34px + env(safe-area-inset-top)) 6px 26px}
 .hero h1{font-size:44px;line-height:1.05;letter-spacing:-.033em}
 .hero .sub{font-size:17px;color:var(--ink2);font-weight:500;margin-top:9px;letter-spacing:-.01em}
-.hero.klein{padding:30px 6px 18px}
+.hero.klein{padding:calc(26px + env(safe-area-inset-top)) 6px 18px}
 .hero.klein h1{font-size:36px}
 .gradient{
   background:linear-gradient(88deg,#0090F7 0%,#8A2BE2 55%,#FF375F 100%);
@@ -51,7 +52,13 @@ main{padding:0 16px 20px;max-width:640px;margin:0 auto}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ---------- Karten & Grundelemente ---------- */
-.karte{background:var(--card);border-radius:var(--radius);box-shadow:var(--schatten);padding:24px;margin-bottom:16px}
+.karte{
+  background:rgba(255,255,255,.32);
+  backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:0 8px 32px rgba(40,50,80,.06), inset 0 1px 0 rgba(255,255,255,.65);
+  border-radius:var(--radius);padding:24px;margin-bottom:16px;
+}
 .karte h3{font-size:21px;margin-bottom:10px}
 .hinweis{color:var(--ink2);font-size:14px;line-height:1.5}
 button{font:inherit;border:none;cursor:pointer;border-radius:980px}
@@ -70,15 +77,18 @@ input,select,textarea{
   border-radius:12px;background:var(--akzent-hell);color:var(--ink);
   transition:background .15s,border-color .15s;appearance:none;-webkit-appearance:none;
 }
-input:focus,select:focus,textarea:focus{outline:none;background:#fff;border-color:var(--blau);box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+input:focus,select:focus,textarea:focus{outline:none;background:rgba(255,255,255,.85);border-color:var(--blau);box-shadow:0 0 0 4px rgba(0,113,227,.12)}
 label{display:block;font-size:12px;color:var(--ink2);margin:14px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 
 /* ---------- Chips ---------- */
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{
-  padding:9px 15px;border-radius:980px;background:#fff;border:1px solid transparent;
+  padding:9px 15px;border-radius:980px;
+  background:rgba(255,255,255,.42);
+  backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid rgba(255,255,255,.55);
   font-size:14px;color:var(--ink);white-space:nowrap;font-weight:500;
-  box-shadow:0 1px 4px rgba(0,0,0,.04);transition:transform .12s ease;
+  box-shadow:0 2px 8px rgba(40,50,80,.05);transition:transform .12s ease;
 }
 .chip:active{transform:scale(.96)}
 .chip.aktiv{background:var(--ink);color:#fff;font-weight:600;box-shadow:none}
@@ -88,8 +98,11 @@ label{display:block;font-size:12px;color:var(--ink2);margin:14px 0 6px;font-weig
 /* ---------- Schrank-Grid ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;margin-top:14px}
 .teil{
-  position:relative;border-radius:16px;overflow:hidden;background:#fff;
-  box-shadow:var(--schatten);aspect-ratio:3/4;cursor:pointer;
+  position:relative;border-radius:16px;overflow:hidden;
+  background:rgba(255,255,255,.35);
+  backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);
+  border:1px solid rgba(255,255,255,.5);
+  box-shadow:0 6px 24px rgba(40,50,80,.06);aspect-ratio:3/4;cursor:pointer;
   transition:transform .15s ease;
 }
 .teil:active{transform:scale(.97)}
@@ -134,9 +147,9 @@ label{display:block;font-size:12px;color:var(--ink2);margin:14px 0 6px;font-weig
 /* ---------- Navigation ---------- */
 nav{
   position:fixed;bottom:0;left:0;right:0;
-  background:rgba(251,251,253,.82);
-  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
-  border-top:1px solid var(--rand);
+  background:rgba(251,251,253,.55);
+  backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);
+  border-top:1px solid rgba(255,255,255,.5);
   display:flex;justify-content:space-around;
   padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:50;
 }
@@ -156,7 +169,10 @@ nav button.aktiv .ic{transform:scale(1.08)}
 }
 .modal-bg.offen{display:flex}
 .modal{
-  background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow-y:auto;
+  background:rgba(245,245,247,.78);
+  backdrop-filter:blur(32px) saturate(170%);-webkit-backdrop-filter:blur(32px) saturate(170%);
+  border-top:1px solid rgba(255,255,255,.6);
+  width:100%;max-width:640px;max-height:92vh;overflow-y:auto;
   border-radius:28px 28px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));
   animation:hoch .25s cubic-bezier(.32,.72,.35,1);
 }
@@ -199,11 +215,28 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
 .zentriert{text-align:center}
 .zentriert .chips{justify-content:center}
+
+/* ---------- Icons ---------- */
+.ic-svg{display:block;flex:0 0 auto}
+nav button svg{width:23px;height:23px}
+h3.mit-ic{display:flex;align-items:center;gap:10px}
+.h3-ic{
+  width:30px;height:30px;border-radius:8px;color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
+}
+.h3-ic svg{width:17px;height:17px;stroke-width:2}
+.btn-ic{display:flex;align-items:center;justify-content:center;gap:9px}
+.wetter .icon-sonne,.wetter .icon-teilsonne{color:#FF9F0A}
+.wetter .icon-wolke,.wetter .icon-nebel{color:#98989D}
+.wetter .icon-regen{color:#0A84FF}
+.wetter .icon-schnee{color:#64D2FF}
+.wetter .icon-gewitter{color:#5E5CE6}
+.kein-foto svg,.of svg{color:#C7C7CC}
+.teil .fav{color:#FFCC00}
+.leer svg{color:#C7C7CC;margin:0 auto 14px}
 </style>
 </head>
 <body>
-
-<div class="topbar">Garderobe</div>
 
 <main>
   <!-- ============ HEUTE ============ -->
@@ -214,7 +247,7 @@ html{scroll-behavior:smooth}
     </div>
     <div class="karte rv" id="wetter-karte">
       <div class="wetter" id="wetter-inhalt">
-        <div class="hinweis">📍 Lege in „Mehr“ deinen Ort fest, um Wetter-Vorschläge zu bekommen.</div>
+        <div class="hinweis">Lege in „Mehr“ deinen Ort fest, um Wetter-Vorschläge zu bekommen.</div>
       </div>
     </div>
 
@@ -222,7 +255,7 @@ html{scroll-behavior:smooth}
       <h3>Wofür brauchst du ein Outfit?</h3>
       <div class="chips" id="anlass-chips" style="margin-top:12px"></div>
       <div style="margin-top:14px">
-        <button class="btn" id="btn-outfits">✨ Outfits vorschlagen</button>
+        <button class="btn" id="btn-outfits">Outfits vorschlagen</button>
       </div>
     </div>
 
@@ -239,8 +272,8 @@ html{scroll-behavior:smooth}
     <div class="chips scroll" id="filter-chips"></div>
     <div class="grid" id="schrank-grid"></div>
     <div class="leer" id="schrank-leer" style="display:none">
-      <div class="gross">👗</div>
-      <p>Noch keine Kleidungsstücke.<br>Tippe unten auf <b>+</b>, um zu starten.</p>
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4.5a2.5 2.5 0 1 0-2.5 2.5v2"/><path d="M12 9 3 16.5h18L12 9z"/></svg>
+      <p>Noch keine Kleidungsstücke.<br>Tippe unten auf <b>Neu</b>, um zu starten.</p>
     </div>
   </section>
 
@@ -252,7 +285,7 @@ html{scroll-behavior:smooth}
     </div>
     <div class="karte rv">
       <div class="foto-box" id="foto-box">
-        <span class="plus">📷</span>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2.5h7L17 8h3a1.5 1.5 0 0 1 1.5 1.5V19a1.5 1.5 0 0 1-1.5 1.5H4A1.5 1.5 0 0 1 2.5 19V9.5A1.5 1.5 0 0 1 4 8z"/><circle cx="12" cy="14" r="3.5"/></svg>
         <span>Foto aufnehmen</span>
       </div>
       <input type="file" id="foto-input" accept="image/*" capture="environment" hidden>
@@ -271,7 +304,7 @@ html{scroll-behavior:smooth}
       <p class="sub">Einstellungen, Profil & Sicherung.</p>
     </div>
     <div class="karte rv">
-      <h3>📍 Ort für Wetter</h3>
+      <h3 class="mit-ic"><span class="h3-ic" style="background:#0071E3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>Ort für Wetter</h3>
       <div class="zeile" style="margin-top:8px">
         <input type="text" id="ort-input" placeholder="z. B. Erfurt">
         <button class="btn sekundaer" style="flex:0 0 auto;width:auto;padding:0 18px" id="btn-ort">Suchen</button>
@@ -280,7 +313,7 @@ html{scroll-behavior:smooth}
     </div>
 
     <div class="karte rv">
-      <h3>🤖 KI-Funktionen (optional)</h3>
+      <h3 class="mit-ic"><span class="h3-ic" style="background:#AF52DE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4L12 3z"/></svg></span>KI-Funktionen (optional)</h3>
       <p class="hinweis" style="margin-top:6px">Mit einem Claude API-Key werden Fotos automatisch erkannt und Outfits von einer KI-Stylistin kuratiert, die deinen Stil lernt. Ohne Key funktioniert alles manuell + mit Regel-Vorschlägen.</p>
       <label>Claude API-Key</label>
       <input type="password" id="key-input" placeholder="sk-ant-…" autocomplete="off">
@@ -292,15 +325,15 @@ html{scroll-behavior:smooth}
     </div>
 
     <div class="karte rv">
-      <h3>💃 Stilprofil</h3>
-      <p class="hinweis" id="stilprofil-text" style="margin-top:6px">Noch kein Stilprofil. Es entsteht automatisch aus deinem Feedback (👍/👎) zu getragenen Outfits, sobald ein API-Key hinterlegt ist.</p>
+      <h3 class="mit-ic"><span class="h3-ic" style="background:#FF2D55"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>Stilprofil</h3>
+      <p class="hinweis" id="stilprofil-text" style="margin-top:6px">Noch kein Stilprofil. Es entsteht automatisch aus deinem Feedback zu getragenen Outfits, sobald ein API-Key hinterlegt ist.</p>
       <div style="margin-top:10px">
         <button class="btn sekundaer" id="btn-profil-neu">Jetzt aus Feedback erstellen</button>
       </div>
     </div>
 
     <div class="karte rv">
-      <h3>💾 Sicherung</h3>
+      <h3 class="mit-ic"><span class="h3-ic" style="background:#34C759"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v10M8.5 9.5 12 13l3.5-3.5"/><path d="M4 15v3.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V15"/></svg></span>Sicherung</h3>
       <p class="hinweis" style="margin-top:6px">Alle Daten liegen nur auf diesem Gerät. Sichere sie regelmäßig als Datei (z. B. in deine Cloud).</p>
       <div class="zeile" style="margin-top:10px">
         <button class="btn sekundaer" id="btn-export">Exportieren</button>
@@ -315,10 +348,10 @@ html{scroll-behavior:smooth}
 </main>
 
 <nav>
-  <button data-view="heute" class="aktiv"><span class="ic">✨</span>Heute</button>
-  <button data-view="schrank"><span class="ic">👗</span>Schrank</button>
-  <button data-view="add"><span class="ic">➕</span>Neu</button>
-  <button data-view="mehr"><span class="ic">⚙️</span>Mehr</button>
+  <button data-view="heute" class="aktiv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4L12 3z"/></svg>Heute</button>
+  <button data-view="schrank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4.5a2.5 2.5 0 1 0-2.5 2.5v2"/><path d="M12 9 3 16.5h18L12 9z"/></svg>Schrank</button>
+  <button data-view="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Neu</button>
+  <button data-view="mehr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg>Mehr</button>
 </nav>
 
 <!-- Modal (Detail/Bearbeiten & Feedback) -->
@@ -347,14 +380,35 @@ const MUSTER = ["uni","gestreift","kariert","gepunktet","floral","gemustert"];
 const STILE = ["casual","business","elegant","sportlich","festlich"];
 const WAERME_LABELS = {1:"1 · luftig/Sommer",2:"2 · normal",3:"3 · warm",4:"4 · sehr warm/Winter"};
 const ANLAESSE = [
-  {name:"Alltag",   emoji:"🏠", stile:["casual","sportlich"]},
-  {name:"Büro",     emoji:"💼", stile:["business","casual","elegant"]},
-  {name:"Ausgehen", emoji:"🍷", stile:["elegant","casual","festlich"]},
-  {name:"Sport",    emoji:"🏃‍♀️", stile:["sportlich"]},
-  {name:"Festlich", emoji:"✨", stile:["festlich","elegant"]}
+  {name:"Alltag",   stile:["casual","sportlich"]},
+  {name:"Büro",     stile:["business","casual","elegant"]},
+  {name:"Ausgehen", stile:["elegant","casual","festlich"]},
+  {name:"Sport",    stile:["sportlich"]},
+  {name:"Festlich", stile:["festlich","elegant"]}
 ];
-const KAT_EMOJI = {Oberteil:"👚",Pullover:"🧶",Hose:"👖",Rock:"👗",Kleid:"👗",Jacke:"🧥",Schuhe:"👟",Tasche:"👜",Accessoire:"💍"};
 const MODELL = "claude-opus-5";
+
+/* SVG-Icons (SF-Symbols-Stil) */
+const ICONS = {
+  heute: '<path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4L12 3z"/>',
+  schrank: '<path d="M14.5 4.5a2.5 2.5 0 1 0-2.5 2.5v2"/><path d="M12 9 3 16.5h18L12 9z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  mehr: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
+  sonne: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>',
+  teilsonne: '<circle cx="9" cy="8.5" r="3"/><path d="M9 3.5V5M3.5 8.5H5M5.1 4.6l1 1M14.5 8.5H13"/><path d="M9.5 20.5h8a3.5 3.5 0 0 0 .7-6.93A5 5 0 0 0 8.9 12.9a3.9 3.9 0 0 0 .6 7.6z"/>',
+  wolke: '<path d="M7 19h10a4 4 0 0 0 .8-7.92A6 6 0 0 0 6.2 9.9 4.5 4.5 0 0 0 7 19z"/>',
+  nebel: '<path d="M4 9h16M6 13h13M4 17h16"/>',
+  regen: '<path d="M7 15h10a4 4 0 0 0 .8-7.92A6 6 0 0 0 6.2 5.9 4.5 4.5 0 0 0 7 15z"/><path d="M8 18l-1 3M12.5 18l-1 3M17 18l-1 3"/>',
+  schnee: '<path d="M7 15h10a4 4 0 0 0 .8-7.92A6 6 0 0 0 6.2 5.9 4.5 4.5 0 0 0 7 15z"/><path d="M8 19h.01M12 21h.01M16 19h.01M10 22h.01M14 18h.01"/>',
+  gewitter: '<path d="M7 13h10a4 4 0 0 0 .8-7.92A6 6 0 0 0 6.2 3.9 4.5 4.5 0 0 0 7 13z"/><path d="M13 13l-3.5 5H12l-1.5 4 4.5-5.5H12l1-3.5z"/>',
+  kamera: '<path d="M4 8h3l1.5-2.5h7L17 8h3a1.5 1.5 0 0 1 1.5 1.5V19a1.5 1.5 0 0 1-1.5 1.5H4A1.5 1.5 0 0 1 2.5 19V9.5A1.5 1.5 0 0 1 4 8z"/><circle cx="12" cy="14" r="3.5"/>',
+  daumenHoch: '<path d="M7 11v9M7 11l3.5-7a2 2 0 0 1 2 2v3h5.2a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 16.5 20H7"/>',
+  daumenRunter: '<path d="M17 13V4M17 13l-3.5 7a2 2 0 0 1-2-2v-3H6.3a2 2 0 0 1-2-2.4l1.2-6A2 2 0 0 1 7.5 4H17"/>',
+  stern: '<path fill="currentColor" stroke="none" d="M12 2.8l2.3 5.6 6 .45-4.6 3.9 1.45 5.85L12 15.4l-5.15 3.2 1.45-5.85-4.6-3.9 6-.45L12 2.8z"/>'
+};
+function ic(name, gr = 22){
+  return `<svg class="ic-svg" width="${gr}" height="${gr}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]||""}</svg>`;
+}
 
 /* =========================================================
    IndexedDB
@@ -488,7 +542,7 @@ function formularHtml(it = {}){
       <div><label>Marke</label><input type="text" data-f="marke" value="${esc(it.marke||"")}" placeholder="optional"></div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:15px;color:var(--ink);margin-top:16px">
-      <input type="checkbox" data-f="favorit" style="width:20px;height:20px" ${it.favorit?"checked":""}> ⭐ Favorit (wird öfter vorgeschlagen)
+      <input type="checkbox" data-f="favorit" style="width:20px;height:20px" ${it.favorit?"checked":""}> <span style="color:#FFCC00">${ic("stern",18)}</span> Favorit (wird öfter vorgeschlagen)
     </label>`;
 }
 function leseFormular(wurzel){
@@ -521,7 +575,7 @@ function initAdd(){
 }
 function resetAdd(){
   addFoto = null;
-  $("foto-box").innerHTML = `<span class="plus">📷</span><span>Foto aufnehmen</span>`;
+  $("foto-box").innerHTML = `${ic("kamera", 40)}<span>Foto aufnehmen</span>`;
   $("add-form").innerHTML = formularHtml();
   $("ki-status").innerHTML = "";
 }
@@ -531,7 +585,7 @@ async function speichereNeuesTeil(){
   const it = Object.assign({ id: uid(), foto: addFoto, archiviert: false, angelegt: heuteStr() }, d);
   await DB.put("items", it);
   ITEMS.push(it);
-  toast("✅ „" + d.name + "“ gespeichert");
+  toast("„" + d.name + "“ gespeichert");
   resetAdd();
 }
 
@@ -566,10 +620,10 @@ async function analysiereFoto(){
     });
     const daten = JSON.parse(textAus(antwort));
     $("add-form").innerHTML = formularHtml(daten);
-    $("ki-status").innerHTML = `<p class="hinweis" style="text-align:center;margin-top:10px">✨ Automatisch erkannt – bitte kurz prüfen</p>`;
+    $("ki-status").innerHTML = `<p class="hinweis" style="text-align:center;margin-top:10px">Automatisch erkannt – bitte kurz prüfen.</p>`;
   } catch(err){
     console.error(err);
-    $("ki-status").innerHTML = `<p class="hinweis" style="text-align:center;margin-top:10px">⚠️ KI-Analyse fehlgeschlagen (${esc(err.message)}). Bitte Felder manuell ausfüllen.</p>`;
+    $("ki-status").innerHTML = `<p class="hinweis" style="text-align:center;margin-top:10px;color:var(--rot)">KI-Analyse fehlgeschlagen (${esc(err.message)}). Bitte Felder manuell ausfüllen.</p>`;
   }
 }
 
@@ -610,17 +664,17 @@ let schrankFilter = "Alle";
 let zeigeArchiv = false;
 
 function renderSchrank(){
-  const filter = ["Alle", ...KATEGORIEN, "⭐ Favoriten", "🗄 Archiv"];
+  const filter = ["Alle", ...KATEGORIEN, "Favoriten", "Archiv"];
   $("filter-chips").innerHTML = filter.map(f =>
     `<button class="chip ${f===schrankFilter?"aktiv":""}" data-filter="${esc(f)}">${esc(f)}</button>`).join("");
   $("filter-chips").querySelectorAll(".chip").forEach(c =>
     c.addEventListener("click", () => { schrankFilter = c.dataset.filter; renderSchrank(); }));
 
   let liste = ITEMS.slice().sort((a,b) => (b.angelegt||"").localeCompare(a.angelegt||""));
-  if (schrankFilter === "🗄 Archiv") liste = liste.filter(i => i.archiviert);
+  if (schrankFilter === "Archiv") liste = liste.filter(i => i.archiviert);
   else {
     liste = liste.filter(i => !i.archiviert);
-    if (schrankFilter === "⭐ Favoriten") liste = liste.filter(i => i.favorit);
+    if (schrankFilter === "Favoriten") liste = liste.filter(i => i.favorit);
     else if (schrankFilter !== "Alle") liste = liste.filter(i => i.kategorie === schrankFilter);
   }
 
@@ -629,8 +683,8 @@ function renderSchrank(){
   $("schrank-sub").textContent = aktiv ? `${aktiv} Teile. Alles an einem Ort.` : "Alles an einem Ort.";
   $("schrank-grid").innerHTML = liste.map((i, nr) => `
     <div class="teil rv ${i.archiviert?"archiviert":""}" data-id="${i.id}" style="transition-delay:${Math.min(nr*35,420)}ms">
-      ${i.foto ? `<img src="${i.foto}" loading="lazy">` : `<div class="kein-foto">${KAT_EMOJI[i.kategorie]||"👕"}</div>`}
-      ${i.favorit ? `<span class="fav">⭐</span>` : ""}
+      ${i.foto ? `<img src="${i.foto}" loading="lazy">` : `<div class="kein-foto">${ic("schrank", 30)}</div>`}
+      ${i.favorit ? `<span class="fav">${ic("stern", 16)}</span>` : ""}
       <div class="name">${esc(i.name)}</div>
     </div>`).join("");
   $("schrank-grid").querySelectorAll(".teil").forEach(t =>
@@ -647,8 +701,8 @@ function zeigeDetail(id){
     <div id="detail-form">${formularHtml(it)}</div>
     <div style="margin-top:16px"><button class="btn" id="btn-detail-speichern">Änderungen speichern</button></div>
     <div class="zeile" style="margin-top:10px">
-      <button class="btn sekundaer" id="btn-detail-archiv">${it.archiviert ? "Aus Archiv holen" : "🗄 Archivieren"}</button>
-      <button class="btn sekundaer" style="color:var(--rot)" id="btn-detail-loeschen">🗑 Löschen</button>
+      <button class="btn sekundaer" id="btn-detail-archiv">${it.archiviert ? "Aus Archiv holen" : "Archivieren"}</button>
+      <button class="btn sekundaer" style="color:var(--rot)" id="btn-detail-loeschen">Löschen</button>
     </div>`);
   $("btn-detail-speichern").addEventListener("click", async () => {
     Object.assign(it, leseFormular($("detail-form")));
@@ -673,16 +727,16 @@ function zeigeDetail(id){
    Wetter (Open-Meteo, ohne Key)
 ========================================================= */
 const WETTER_CODES = [
-  [0,"☀️","Sonnig"],[1,"🌤","Überwiegend sonnig"],[2,"⛅️","Teils bewölkt"],[3,"☁️","Bedeckt"],
-  [45,"🌫","Nebel"],[48,"🌫","Nebel"],[51,"🌦","Leichter Niesel"],[53,"🌦","Niesel"],[55,"🌧","Starker Niesel"],
-  [61,"🌧","Leichter Regen"],[63,"🌧","Regen"],[65,"🌧","Starker Regen"],[66,"🌧","Gefrierender Regen"],[67,"🌧","Gefrierender Regen"],
-  [71,"🌨","Leichter Schnee"],[73,"🌨","Schnee"],[75,"❄️","Starker Schnee"],[77,"❄️","Schneegriesel"],
-  [80,"🌦","Regenschauer"],[81,"🌧","Regenschauer"],[82,"⛈","Heftige Schauer"],[85,"🌨","Schneeschauer"],[86,"🌨","Schneeschauer"],
-  [95,"⛈","Gewitter"],[96,"⛈","Gewitter"],[99,"⛈","Gewitter"]
+  [0,"sonne","Sonnig"],[1,"teilsonne","Überwiegend sonnig"],[2,"teilsonne","Teils bewölkt"],[3,"wolke","Bedeckt"],
+  [45,"nebel","Nebel"],[48,"nebel","Nebel"],[51,"regen","Leichter Niesel"],[53,"regen","Niesel"],[55,"regen","Starker Niesel"],
+  [61,"regen","Leichter Regen"],[63,"regen","Regen"],[65,"regen","Starker Regen"],[66,"regen","Gefrierender Regen"],[67,"regen","Gefrierender Regen"],
+  [71,"schnee","Leichter Schnee"],[73,"schnee","Schnee"],[75,"schnee","Starker Schnee"],[77,"schnee","Schneegriesel"],
+  [80,"regen","Regenschauer"],[81,"regen","Regenschauer"],[82,"gewitter","Heftige Schauer"],[85,"schnee","Schneeschauer"],[86,"schnee","Schneeschauer"],
+  [95,"gewitter","Gewitter"],[96,"gewitter","Gewitter"],[99,"gewitter","Gewitter"]
 ];
 function wetterInfo(code){
-  let best = ["🌡",""];
-  for (const [c, ic, txt] of WETTER_CODES) if (code >= c) best = [ic, txt];
+  let best = ["wolke",""];
+  for (const [c, symbol, txt] of WETTER_CODES) if (code >= c) best = [symbol, txt];
   return best;
 }
 async function ladeWetter(){
@@ -708,12 +762,12 @@ async function ladeWetter(){
 }
 function renderWetter(){
   if (!wetterHeute) return;
-  const [icon, beschr] = wetterInfo(wetterHeute.code);
+  const [symbol, beschr] = wetterInfo(wetterHeute.code);
   $("wetter-inhalt").innerHTML = `
-    <div class="icon">${icon}</div>
+    <div class="icon icon-${symbol}">${ic(symbol, 38)}</div>
     <div>
       <div class="temp">${wetterHeute.tmax}° <span style="color:var(--ink2);font-weight:400;font-size:15px">/ ${wetterHeute.tmin}°</span></div>
-      <div class="beschr">${beschr} · ${esc(EINST.ort.name)}${wetterHeute.regen >= 40 ? " · ☔️ " + wetterHeute.regen + "% Regen" : ""}</div>
+      <div class="beschr">${beschr} · ${esc(EINST.ort.name)}${wetterHeute.regen >= 40 ? " · Regen " + wetterHeute.regen + "%" : ""}</div>
     </div>`;
 }
 
@@ -887,7 +941,7 @@ Erstelle 3 Outfits.` }]
 ========================================================= */
 function initHeute(){
   $("anlass-chips").innerHTML = ANLAESSE.map(a =>
-    `<button class="chip ${a.name===aktuellerAnlass?"aktiv":""}" data-anlass="${a.name}">${a.emoji} ${a.name}</button>`).join("");
+    `<button class="chip ${a.name===aktuellerAnlass?"aktiv":""}" data-anlass="${a.name}">${a.name}</button>`).join("");
   $("anlass-chips").querySelectorAll(".chip").forEach(c =>
     c.addEventListener("click", () => {
       aktuellerAnlass = c.dataset.anlass;
@@ -927,15 +981,15 @@ function outfitKarte(o, idx){
     <div class="outfit-titel">
       <h3>${esc(o.titel)}</h3>
       ${o.mutig
-        ? `<span class="tag" style="background:rgba(255,69,58,.1);color:#E8462F">🔥 Trau dich</span>`
-        : `<span class="tag">${o.quelle === "ki" ? "✨ KI" : "🎲 Regeln"}</span>`}
+        ? `<span class="tag" style="background:rgba(255,69,58,.1);color:#E8462F">Trau dich</span>`
+        : `<span class="tag">${o.quelle === "ki" ? "✦ KI" : "Regeln"}</span>`}
     </div>
     <div class="outfit-fotos">
-      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : (KAT_EMOJI[t.kategorie]||"👕")}</div>`).join("")}
+      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : ic("schrank", 26)}</div>`).join("")}
     </div>
     <div class="hinweis" style="font-size:12.5px;margin-bottom:4px">${teile.map(t => esc(t.name)).join(" · ")}</div>
     <div class="begruendung">${esc(o.begruendung)}</div>
-    <button class="btn sekundaer" data-wear="${idx}">Das trage ich heute ✓</button>
+    <button class="btn sekundaer" data-wear="${idx}">Das trage ich heute</button>
   </div>`;
 }
 
@@ -948,7 +1002,7 @@ async function wähleOutfit(o){
   OUTFITS.push(eintrag);
   $("outfit-ergebnisse").innerHTML = "";
   renderHeuteGewaehlt();
-  toast("Viel Spaß mit deinem Outfit! 💃");
+  toast("Viel Spaß mit deinem Outfit!");
 }
 
 function renderHeuteGewaehlt(){
@@ -960,7 +1014,7 @@ function renderHeuteGewaehlt(){
   <div class="karte rv" style="border:1.5px solid var(--blau)">
     <div class="outfit-titel"><h3>Heutiges Outfit</h3><span class="tag" style="background:rgba(0,113,227,.1);color:var(--blau)">✓ gewählt</span></div>
     <div class="outfit-fotos">
-      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : (KAT_EMOJI[t.kategorie]||"👕")}</div>`).join("")}
+      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : ic("schrank", 26)}</div>`).join("")}
     </div>
     <div class="hinweis" style="font-size:12.5px">${teile.map(t => esc(t.name)).join(" · ")}</div>
   </div>`;
@@ -982,15 +1036,15 @@ function frageFeedback(o){
   const teile = o.itemIds.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
   const datum = new Date(o.datum + "T12:00:00").toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
   zeigeModal(`
-    <div class="modal-kopf"><h2>Kurzes Feedback 💬</h2><button class="schliessen" onclick="schliesseModal()">×</button></div>
-    <p class="hinweis">Dein geplantes Outfit vom <b>${datum}</b> – wie war's?</p>
+    <div class="modal-kopf"><h2>Wie war dein Outfit?</h2><button class="schliessen" onclick="schliesseModal()">×</button></div>
+    <p class="hinweis">Dein geplantes Outfit vom <b>${datum}</b>:</p>
     <div class="outfit-fotos" style="margin-top:12px">
-      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : (KAT_EMOJI[t.kategorie]||"👕")}</div>`).join("")}
+      ${teile.map(t => `<div class="of">${t.foto ? `<img src="${t.foto}">` : ic("schrank", 26)}</div>`).join("")}
     </div>
     <div class="hinweis" style="font-size:12.5px;margin-bottom:14px">${teile.map(t => esc(t.name)).join(" · ")}</div>
-    <button class="btn" id="fb-up">👍 Getragen & gefiel mir</button>
+    <button class="btn btn-ic" id="fb-up">${ic("daumenHoch", 18)} Getragen & gefiel mir</button>
     <div style="height:10px"></div>
-    <button class="btn sekundaer" id="fb-down">👎 Getragen, aber nicht so meins</button>
+    <button class="btn sekundaer btn-ic" id="fb-down">${ic("daumenRunter", 18)} Getragen, aber nicht so meins</button>
     <div style="height:10px"></div>
     <button class="btn leise" id="fb-nein">Gar nicht getragen</button>`);
   $("fb-up").addEventListener("click", () => speichereFeedback(o, "getragen", "up"));
@@ -1006,7 +1060,7 @@ async function speichereFeedback(o, status, rating){
     speichereEinst();
     if (EINST.apiKey && EINST.fbZaehler % 6 === 0) aktualisiereStilprofil().catch(console.error);
   }
-  toast("Danke! Das hilft den nächsten Vorschlägen 💡");
+  toast("Danke! Das hilft den nächsten Vorschlägen.");
   const weitere = offenesFeedback();
   if (weitere.length) setTimeout(() => frageFeedback(weitere[0]), 400);
 }
@@ -1046,19 +1100,19 @@ function initMehr(){
     try {
       const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=de`);
       const d = await r.json();
-      if (!d.results || !d.results.length){ $("ort-status").textContent = "❌ Ort nicht gefunden"; return; }
+      if (!d.results || !d.results.length){ $("ort-status").textContent = "Ort nicht gefunden."; return; }
       const o = d.results[0];
       EINST.ort = { name: o.name, lat: o.latitude, lon: o.longitude };
       speichereEinst();
       sessionStorage.removeItem("ka_wetter_" + heuteStr());
-      $("ort-status").textContent = `✅ ${o.name}${o.admin1 ? ", " + o.admin1 : ""} gespeichert`;
+      $("ort-status").textContent = `${o.name}${o.admin1 ? ", " + o.admin1 : ""} gespeichert ✓`;
       ladeWetter();
-    } catch(e){ $("ort-status").textContent = "❌ Fehler bei der Suche"; }
+    } catch(e){ $("ort-status").textContent = "Fehler bei der Suche."; }
   });
   $("btn-key-speichern").addEventListener("click", () => {
     EINST.apiKey = $("key-input").value.trim();
     speichereEinst();
-    $("key-status").textContent = EINST.apiKey ? "✅ Key gespeichert (nur auf diesem Gerät)" : "Key entfernt – App läuft im Regel-Modus";
+    $("key-status").textContent = EINST.apiKey ? "Key gespeichert (nur auf diesem Gerät) ✓" : "Key entfernt – App läuft im Regel-Modus.";
   });
   $("btn-key-test").addEventListener("click", async () => {
     EINST.apiKey = $("key-input").value.trim() || EINST.apiKey;
@@ -1066,14 +1120,14 @@ function initMehr(){
     $("key-status").textContent = "Teste Verbindung …";
     try {
       await claudeAnfrage({ model: MODELL, max_tokens: 20, messages: [{ role: "user", content: "Antworte nur mit: OK" }] });
-      $("key-status").textContent = "✅ Verbindung funktioniert!";
-    } catch(e){ $("key-status").textContent = "❌ " + e.message; }
+      $("key-status").textContent = "Verbindung funktioniert ✓";
+    } catch(e){ $("key-status").textContent = "Fehler: " + e.message; }
   });
   $("btn-profil-neu").addEventListener("click", async () => {
     if (!EINST.apiKey){ toast("Dafür wird ein API-Key benötigt"); return; }
     $("stilprofil-text").textContent = "Wird erstellt …";
-    try { $("stilprofil-text").textContent = await aktualisiereStilprofil(); toast("Stilprofil aktualisiert ✨"); }
-    catch(e){ $("stilprofil-text").textContent = "❌ " + e.message; }
+    try { $("stilprofil-text").textContent = await aktualisiereStilprofil(); toast("Stilprofil aktualisiert"); }
+    catch(e){ $("stilprofil-text").textContent = "Fehler: " + e.message; }
   });
   $("btn-export").addEventListener("click", exportiereDaten);
   $("btn-import").addEventListener("click", () => $("import-input").click());
@@ -1081,11 +1135,11 @@ function initMehr(){
 }
 function renderMehr(){
   $("ort-input").value = EINST.ort ? EINST.ort.name : "";
-  $("ort-status").textContent = EINST.ort ? `✅ ${EINST.ort.name} ist gespeichert` : "";
+  $("ort-status").textContent = EINST.ort ? `${EINST.ort.name} ist gespeichert ✓` : "";
   $("key-input").value = EINST.apiKey;
   if (EINST.stilprofil) $("stilprofil-text").textContent = EINST.stilprofil;
   const getragen = OUTFITS.filter(o => o.status === "getragen").length;
-  $("statistik").textContent = `📊 ${ITEMS.filter(i=>!i.archiviert).length} Teile im Schrank · ${ITEMS.filter(i=>i.archiviert).length} archiviert · ${getragen} Outfits getragen`;
+  $("statistik").textContent = `${ITEMS.filter(i=>!i.archiviert).length} Teile im Schrank · ${ITEMS.filter(i=>i.archiviert).length} archiviert · ${getragen} Outfits getragen`;
 }
 
 function exportiereDaten(){
@@ -1097,7 +1151,7 @@ function exportiereDaten(){
   a.download = `garderobe-backup-${heuteStr()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
-  toast("Backup-Datei erstellt 💾");
+  toast("Backup-Datei erstellt");
 }
 async function importiereDaten(e){
   const file = e.target.files[0];
@@ -1120,8 +1174,8 @@ async function importiereDaten(e){
     ITEMS = await DB.alle("items");
     OUTFITS = await DB.alle("outfits");
     renderMehr(); renderSchrank();
-    toast(`✅ ${ITEMS.length} Teile importiert`);
-  } catch(err){ toast("❌ Import fehlgeschlagen: " + err.message); }
+    toast(`${ITEMS.length} Teile importiert`);
+  } catch(err){ toast("Import fehlgeschlagen: " + err.message); }
 }
 
 /* =========================================================
